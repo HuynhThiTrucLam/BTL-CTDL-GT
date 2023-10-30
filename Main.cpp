@@ -150,7 +150,7 @@ int main()
 
     TextContainer textTest("test Text");
     // set film's name
-    textTest.AddTextContainer("Ke Kien Tao", fontFilmName, 30, Color::Black, xLogoPosition - 15, 100);
+    textTest.AddTextContainer("Ke Kien Tao", fontFilmName, 30, Color::Black, xLogoPosition + 20, 100); // -15
     // set film's category
     textTest.AddTextContainer("The loai:", fontTitle, 18, Color::Black, xLogoPosition - 15, 135);
     // set film's category content
