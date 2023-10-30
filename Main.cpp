@@ -4,7 +4,8 @@
 #include <memory>
 using namespace sf;
 using namespace std;
-
+const int SCRWIDTH = 585;
+const int SCRHEIGHT = 900;
 class IComponent
 {
 public:
@@ -32,7 +33,26 @@ private:
     Texture m_texture;
     Sprite m_sprite;
 };
+class TextComponent : public IComponent
+{
+private:
+    Text m_text;
 
+public:
+    TextComponent(string text, Font &font, unsigned int size, Color color = Color::Black, float xPosotion = 1, float yPosotion = 1)
+    {
+        m_text.setFont(font);
+        m_text.setString(text);
+        m_text.setCharacterSize(size);
+        m_text.setFillColor(color);
+        m_text.setPosition(xPosotion, yPosotion);
+    }
+    ~TextComponent() {}
+    void Render(RenderWindow &ref)
+    {
+        ref.draw(m_text);
+    }
+};
 class DateContainer
 {
 private:
@@ -58,10 +78,35 @@ public:
         }
     }
 };
+class TextContainer
+{
+private:
+    string m_name;
+    vector<shared_ptr<IComponent>> m_components;
+
+public:
+    TextContainer(string name)
+    {
+        m_name = name;
+    }
+    ~TextContainer() {}
+    void AddTextContainer(string text, Font &font, unsigned int size, Color color, float xPosotion = 1, float yPosotion = 1)
+    {
+        shared_ptr<TextComponent> item = make_shared<TextComponent>(text, font, size, color, xPosotion, yPosotion);
+        m_components.push_back(item);
+    }
+    void Render(RenderWindow &ref)
+    {
+        for (int i = 0; i < m_components.size(); i++)
+        {
+            m_components[i]->Render(ref);
+        }
+    }
+};
 
 int main()
 {
-    RenderWindow window(VideoMode(585, 900), "SFML Image Loading");
+    RenderWindow window(VideoMode(SCRWIDTH, SCRHEIGHT), "SFML Image Loading");
     float xLogoPosition = 220.0f;
     float yLogoPosition = 20.0f;
     float xIconPrevPosition = 40.0f;
@@ -76,7 +121,10 @@ int main()
     font.loadFromFile("fonts/Montserrat/Montserrat-ExtraBold.ttf");
     Text logoName("SLC2T", font, 50);
     logoName.setFillColor(Color(186, 15, 46));
-    logoName.move(xLogoPosition, yLogoPosition);
+    // center x position
+    FloatRect textRect = logoName.getLocalBounds();
+    logoName.setOrigin(textRect.width / 2, textRect.height / 2);
+    logoName.setPosition(Vector2f(SCRWIDTH / 2.0f, yLogoPosition * 2));
     // set icon previous
     Texture icon;
     icon.loadFromFile("images/icon-prev.png");
@@ -89,82 +137,52 @@ int main()
     Sprite filmPoster(film);
     filmPoster.setScale(0.3, 0.3);
     filmPoster.setPosition(xIconPrevPosition, 100.0f);
-    // set film's name
-    Font fontFilmName;
-    fontFilmName.loadFromFile("fonts/Montserrat/Montserrat-Bold.ttf");
-    Text filmName("Ke Kien Tao", fontFilmName, 30);
-    filmName.setFillColor(Color(0, 0, 0));
-    filmName.move(xLogoPosition - 15, 100);
 
     // set font default
+    Font fontFilmName;
+    fontFilmName.loadFromFile("fonts/Montserrat/Montserrat-Bold.ttf");
     Font fontTitle;
     fontTitle.loadFromFile("fonts/Montserrat/Montserrat-SemiBold.ttf");
     Font fontDesc;
     fontDesc.loadFromFile("fonts/Montserrat/Montserrat-Regular.ttf");
-    // set film's category
-    Text filmCategory("The loai: ", fontTitle, 18);
-    filmCategory.setFillColor(Color(0, 0, 0));
-    filmCategory.move(xLogoPosition - 15, 135);
-    // set film's category content
+    Font fontHeader;
+    fontHeader.loadFromFile("fonts/Montserrat/Montserrat-Semibold.ttf");
 
-    Text filmCategoryDesc("Hanh dong, KHVT,...", fontDesc, 16);
-    filmCategoryDesc.setFillColor(Color(0, 0, 0));
-    filmCategoryDesc.move(xLogoPosition - 15 + 85, 137);
+    TextContainer textTest("test Text");
+    // set film's name
+    textTest.AddTextContainer("Ke Kien Tao", fontFilmName, 30, Color::Black, xLogoPosition - 15, 100);
+    // set film's category
+    textTest.AddTextContainer("The loai:", fontTitle, 18, Color::Black, xLogoPosition - 15, 135);
+    // set film's category content
+    textTest.AddTextContainer("Hanh dong, KHVT,...", fontDesc, 16, Color::Black, xLogoPosition - 15 + 85, 137);
     // set film's time
-    Text filmTime("Thoi luong: ", fontTitle, 18);
-    filmTime.setFillColor(Color(0, 0, 0));
-    filmTime.move(xLogoPosition - 15, 160);
+    textTest.AddTextContainer("Thoi luong:", fontTitle, 18, Color::Black, xLogoPosition - 15, 160);
     // set film's time content
-    Text filmTimeDesc("120p", fontDesc, 16);
-    filmTimeDesc.setFillColor(Color(0, 0, 0));
-    filmTimeDesc.move(xLogoPosition - 15 + 110, 162);
+    textTest.AddTextContainer("120p", fontDesc, 16, Color::Black, xLogoPosition - 15 + 110, 162);
     // set film's language
-    Text filmLanguage("Ngon ngu: ", fontTitle, 18);
-    filmLanguage.setFillColor(Color(0, 0, 0));
-    filmLanguage.move(xLogoPosition - 15, 185);
+    textTest.AddTextContainer("Ngon ngu:", fontTitle, 18, Color::Black, xLogoPosition - 15, 185);
     // set film's language content
-    Text filmLanguageDesc("Tieng Anh - Phu de Tieng Viet", fontDesc, 16);
-    filmLanguageDesc.setFillColor(Color(0, 0, 0));
-    filmLanguageDesc.move(xLogoPosition - 15 + 105, 187);
+    textTest.AddTextContainer("Tieng Anh - Phu de Tieng Viet", fontDesc, 16, Color::Black, xLogoPosition - 15 + 105, 187);
     // set film's Rate
-    Text filmRate("Danh gia: ", fontTitle, 18);
-    filmRate.setFillColor(Color(0, 0, 0));
-    filmRate.move(xLogoPosition - 15, 210);
+    textTest.AddTextContainer("Danh gia:", fontTitle, 18, Color::Black, xLogoPosition - 15, 210);
     // set film's Rate content
-    Text filmRateDesc("4,6/5", fontDesc, 16);
-    filmRateDesc.setFillColor(Color(0, 0, 0));
-    filmRateDesc.move(xLogoPosition - 15 + 100, 212);
+    textTest.AddTextContainer("4,6/5", fontDesc, 16, Color::Black, xLogoPosition - 15 + 100, 212);
     // set film's Date
-    Text filmDate("Khoi Chieu: ", fontTitle, 18);
-    filmDate.setFillColor(Color(0, 0, 0));
-    filmDate.move(xLogoPosition - 15, 235);
+    textTest.AddTextContainer("Khoi Chieu:", fontTitle, 18, Color::Black, xLogoPosition - 15, 235);
     // set film's Date content
-    Text filmDateDesc("10/11/2023", fontDesc, 16);
-    filmDateDesc.setFillColor(Color(0, 0, 0));
-    filmDateDesc.move(xLogoPosition - 15 + 110, 237);
+    textTest.AddTextContainer("10/11/2023", fontDesc, 16, Color::Black, xLogoPosition - 15 + 110, 237);
 
     // set film's description heading
-    Font fontHeader;
-    fontHeader.loadFromFile("fonts/Montserrat-Semibold.ttf");
-    Text filmDesc("Mo ta phim", fontHeader, 26);
-    filmDesc.setFillColor(Color(0, 0, 0));
-    filmDesc.move(xIconPrevPosition, 320);
+
+    textTest.AddTextContainer("Mo ta phim", fontHeader, 26, Color::Black, xIconPrevPosition, 320);
     // set film's director
-    Text filmDirector("Dao dien:", fontTitle, 18);
-    filmDirector.setFillColor(Color(0, 0, 0));
-    filmDirector.move(xIconPrevPosition, 350);
-    // set film's director
-    Text filmDirectorName("Huynh Thi Truc Lam", fontDesc, 16);
-    filmDirectorName.setFillColor(Color(0, 0, 0));
-    filmDirectorName.move(xIconPrevPosition + 100, 352);
+    textTest.AddTextContainer("Dao dien:", fontTitle, 18, Color::Black, xIconPrevPosition, 350);
+    // set film's director content
+    textTest.AddTextContainer("Huynh Thi Truc Lam", fontDesc, 16, Color::Black, xIconPrevPosition + 110, 352);
     // set film's actor
-    Text filmActor("Dien vien long tiêng:", fontTitle, 18);
-    filmActor.setFillColor(Color(0, 0, 0));
-    filmActor.move(xIconPrevPosition, 375);
+    textTest.AddTextContainer("Dien vien long tieng:", fontTitle, 18, Color::Black, xIconPrevPosition, 375);
     // set film's actor desc
-    Text filmActorDesc("Brie Larson, Samuel L. Jackson, Zaw... ", fontDesc, 16);
-    filmActorDesc.setFillColor(Color(0, 0, 0));
-    filmActorDesc.move(xIconPrevPosition + 200, 377);
+    textTest.AddTextContainer("Brie Larson, Samuel L. Jackson, Zaw... ", fontDesc, 16, Color::Black, xIconPrevPosition + 200, 377);
 
     // set bg-action
     Texture bgRed;
@@ -177,7 +195,8 @@ int main()
     actionTitle.setFillColor(Color(255, 255, 255));
     actionTitle.move(xIconPrevPosition + 25, yIconPrevPosition + 390);
 
-    // set Date Selection'container
+    // text component test
+    // TextComponent textTest("heellooo", fontTitle, 40, 100, 100);
 
     DateContainer backgroundGraySmall("container");
     for (int i = 0; i < 14; i++)
@@ -238,29 +257,14 @@ int main()
         window.draw(iconPrev);
         window.draw(logoName);
         window.draw(filmPoster);
-        window.draw(filmName);
-        window.draw(filmCategory);
-        window.draw(filmCategoryDesc);
-        window.draw(filmTime);
-        window.draw(filmTimeDesc);
-        window.draw(filmLanguage);
-        window.draw(filmLanguageDesc);
-        window.draw(filmRate);
-        window.draw(filmRateDesc);
-        window.draw(filmDate);
-        window.draw(filmDateDesc);
-        window.draw(filmDateDesc);
-        window.draw(filmDesc);
-        window.draw(filmDirector);
-        window.draw(filmDirectorName);
-        window.draw(filmActor);
-        window.draw(filmActorDesc);
+
         window.draw(bgAction);
         window.draw(actionTitle);
 
         backgroundGrayLarge.Render(window);
         backgroundGraySmall.Render(window);
         backgroundRed.Render(window);
+        textTest.Render(window);
         window.display();
     }
 
