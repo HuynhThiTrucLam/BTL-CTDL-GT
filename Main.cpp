@@ -1,7 +1,7 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
-#include <memory> /// tét code
+#include <memory> // tessst
 using namespace sf;
 using namespace std;
 const int SCRWIDTH = 585;
